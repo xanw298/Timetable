@@ -237,6 +237,13 @@
       line-height: 1.5;
     }
 
+    .modal input,
+    .modal select,
+    .modal textarea {
+      margin-top: 6px;
+      margin-bottom: 8px;
+    }
+
     .modal-actions {
       display: flex;
       gap: 8px;
@@ -337,6 +344,29 @@
     const deleteEventBtn = document.getElementById("deleteEventBtn");
     const closeModalBtn = document.getElementById("closeModalBtn");
 
+    const editTitle = document.createElement("input");
+    const editDay = document.createElement("select");
+    const editStartTime = document.createElement("input");
+    const editEndTime = document.createElement("input");
+    const editColor = document.createElement("input");
+    const editMemo = document.createElement("textarea");
+    const saveEditBtn = document.createElement("button");
+
+    editTitle.type = "text";
+    editStartTime.type = "time";
+    editEndTime.type = "time";
+    editColor.type = "color";
+    saveEditBtn.type = "button";
+    saveEditBtn.textContent = "수정 저장";
+    saveEditBtn.className = "add-btn";
+
+    days.forEach((day, index) => {
+      const option = document.createElement("option");
+      option.value = index;
+      option.textContent = `${day}요일`;
+      editDay.appendChild(option);
+    });
+
     let events = JSON.parse(localStorage.getItem("weeklyEvents")) || [];
     let selectedEventId = null;
 
@@ -355,8 +385,9 @@
       return `${hour}:${minute}`;
     }
 
-    function hasConflict(newEvent) {
+    function hasConflict(newEvent, ignoreId = null) {
       return events.some(event => {
+        if (ignoreId && event.id === ignoreId) return false;
         if (Number(event.day) !== Number(newEvent.day)) return false;
 
         const existingStart = timeToMinutes(event.startTime);
@@ -454,10 +485,31 @@
       if (!event) return;
 
       selectedEventId = id;
-      modalTitle.textContent = event.title;
-      modalDay.textContent = `요일: ${days[event.day]}요일`;
-      modalTime.textContent = `시간: ${event.startTime} ~ ${event.endTime}`;
-      modalMemo.textContent = event.memo ? `메모: ${event.memo}` : "메모 없음";
+      modalTitle.textContent = "일정 수정";
+
+      modalDay.innerHTML = "<strong>일정 이름</strong>";
+      modalDay.appendChild(editTitle);
+
+      modalTime.innerHTML = "<strong>요일 / 시간 / 색상</strong>";
+      modalTime.appendChild(editDay);
+      modalTime.appendChild(editStartTime);
+      modalTime.appendChild(editEndTime);
+      modalTime.appendChild(editColor);
+
+      modalMemo.innerHTML = "<strong>메모</strong>";
+      modalMemo.appendChild(editMemo);
+
+      if (!saveEditBtn.parentElement) {
+        document.querySelector(".modal-actions").prepend(saveEditBtn);
+      }
+
+      editTitle.value = event.title;
+      editDay.value = event.day;
+      editStartTime.value = event.startTime;
+      editEndTime.value = event.endTime;
+      editColor.value = event.color;
+      editMemo.value = event.memo || "";
+
       modalBg.style.display = "flex";
     }
 
@@ -504,6 +556,50 @@
       renderEvents();
       eventForm.reset();
       document.getElementById("color").value = "#3b82f6";
+    });
+
+    saveEditBtn.addEventListener("click", () => {
+      if (!selectedEventId) return;
+
+      const title = editTitle.value.trim();
+      const day = Number(editDay.value);
+      const startTime = editStartTime.value;
+      const endTime = editEndTime.value;
+      const color = editColor.value;
+      const memo = editMemo.value.trim();
+
+      if (!title) {
+        alert("일정 이름을 입력해주세요.");
+        return;
+      }
+
+      const startMinutes = timeToMinutes(startTime);
+      const endMinutes = timeToMinutes(endTime);
+
+      if (startMinutes >= endMinutes) {
+        alert("종료 시간은 시작 시간보다 늦어야 합니다.");
+        return;
+      }
+
+      const updatedEvent = {
+        id: selectedEventId,
+        title,
+        day,
+        startTime,
+        endTime,
+        color,
+        memo
+      };
+
+      if (hasConflict(updatedEvent, selectedEventId)) {
+        alert("이미 같은 시간대에 일정이 있습니다.");
+        return;
+      }
+
+      events = events.map(event => event.id === selectedEventId ? updatedEvent : event);
+      saveEvents();
+      renderEvents();
+      closeModal();
     });
 
     deleteEventBtn.addEventListener("click", () => {
