@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>24시간 주간 일정표</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    header {
+      padding: 20px 24px;
+      background: #ffffff;
+      border-bottom: 1px solid #ddd;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .app {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .form-panel {
+      width: 280px;
+      padding: 18px;
+      background: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+
+    .form-panel h2 {
+      margin: 0 0 16px;
+      font-size: 18px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      width: 100%;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    input,
+    select,
+    textarea {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    button {
+      margin-top: 14px;
+      padding: 11px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .add-btn {
+      background: #222;
+      color: white;
+    }
+
+    .reset-btn {
+      background: #eee;
+      color: #222;
+    }
+
+    .delete-btn {
+      background: #ff4d4d;
+      color: white;
+    }
+
+    .schedule-wrap {
+      flex: 1;
+      overflow: auto;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+    }
+
+    .schedule {
+      min-width: 980px;
+      display: grid;
+      grid-template-columns: 70px repeat(7, 1fr);
+      grid-template-rows: 44px repeat(24, 60px);
+      position: relative;
+    }
+
+    .corner {
+      grid-column: 1;
+      grid-row: 1;
+      background: #fafafa;
+      border-right: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+      position: sticky;
+      top: 0;
+      left: 0;
+      z-index: 20;
+    }
+
+    .day-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fafafa;
+      border-right: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .time-label {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 6px;
+      background: #fafafa;
+      border-right: 1px solid #ddd;
+      border-bottom: 1px solid #eee;
+      font-size: 12px;
+      color: #666;
+      position: sticky;
+      left: 0;
+      z-index: 8;
+    }
+
+    .cell {
+      border-right: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+      background: #fff;
+    }
+
+    .day-column {
+      position: relative;
+      grid-row: 2 / span 24;
+    }
+
+    .event {
+      position: absolute;
+      left: 4px;
+      right: 4px;
+      padding: 7px;
+      border-radius: 8px;
+      color: white;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.16);
+    }
+
+    .event-title {
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .event-time,
+    .event-memo {
+      font-size: 11px;
+      line-height: 1.3;
+      opacity: 0.95;
+    }
+
+    .event-memo {
+      margin-top: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal {
+      width: 360px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .modal h3 {
+      margin: 0 0 8px;
+    }
+
+    .modal p {
+      margin: 7px 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .modal-actions button {
+      margin-top: 0;
+    }
+
+    .close-btn {
+      background: #eee;
+    }
+
+    @media (max-width: 800px) {
+      .app {
+        flex-direction: column;
+      }
+
+      .form-panel {
+        width: 100%;
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>24시간 주간 일정표</h1>
+  </header>
+
+  <main class="app">
+    <aside class="form-panel">
+      <h2>일정 추가</h2>
+
+      <form id="eventForm">
+        <label for="title">일정 이름</label>
+        <input id="title" type="text" placeholder="예: 운동, 공부, 알바" required />
+
+        <label for="day">요일</label>
+        <select id="day" required>
+          <option value="0">월요일</option>
+          <option value="1">화요일</option>
+          <option value="2">수요일</option>
+          <option value="3">목요일</option>
+          <option value="4">금요일</option>
+          <option value="5">토요일</option>
+          <option value="6">일요일</option>
+        </select>
+
+        <label for="startTime">시작 시간</label>
+        <input id="startTime" type="time" required />
+
+        <label for="endTime">종료 시간</label>
+        <input id="endTime" type="time" required />
+
+        <label for="color">색상</label>
+        <input id="color" type="color" value="#3b82f6" />
+
+        <label for="memo">메모</label>
+        <textarea id="memo" placeholder="선택 사항"></textarea>
+
+        <button class="add-btn" type="submit">일정 추가</button>
+        <button class="reset-btn" type="button" id="clearAllBtn">전체 삭제</button>
+      </form>
+    </aside>
+
+    <section class="schedule-wrap">
+      <div class="schedule" id="schedule"></div>
+    </section>
+  </main>
+
+  <div class="modal-bg" id="modalBg">
+    <div class="modal">
+      <h3 id="modalTitle"></h3>
+      <p id="modalDay"></p>
+      <p id="modalTime"></p>
+      <p id="modalMemo"></p>
+
+      <div class="modal-actions">
+        <button class="delete-btn" id="deleteEventBtn">삭제</button>
+        <button class="close-btn" id="closeModalBtn">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const days = ["월", "화", "수", "목", "금", "토", "일"];
+    const schedule = document.getElementById("schedule");
+    const eventForm = document.getElementById("eventForm");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+
+    const modalBg = document.getElementById("modalBg");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalDay = document.getElementById("modalDay");
+    const modalTime = document.getElementById("modalTime");
+    const modalMemo = document.getElementById("modalMemo");
+    const deleteEventBtn = document.getElementById("deleteEventBtn");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+
+    let events = JSON.parse(localStorage.getItem("weeklyEvents")) || [];
+    let selectedEventId = null;
+
+    function saveEvents() {
+      localStorage.setItem("weeklyEvents", JSON.stringify(events));
+    }
+
+    function timeToMinutes(time) {
+      const [hour, minute] = time.split(":").map(Number);
+      return hour * 60 + minute;
+    }
+
+    function minutesToTime(minutes) {
+      const hour = Math.floor(minutes / 60).toString().padStart(2, "0");
+      const minute = (minutes % 60).toString().padStart(2, "0");
+      return `${hour}:${minute}`;
+    }
+
+    function hasConflict(newEvent) {
+      return events.some(event => {
+        if (Number(event.day) !== Number(newEvent.day)) return false;
+
+        const existingStart = timeToMinutes(event.startTime);
+        const existingEnd = timeToMinutes(event.endTime);
+        const newStart = timeToMinutes(newEvent.startTime);
+        const newEnd = timeToMinutes(newEvent.endTime);
+
+        return newStart < existingEnd && newEnd > existingStart;
+      });
+    }
+
+    function buildScheduleGrid() {
+      schedule.innerHTML = "";
+
+      const corner = document.createElement("div");
+      corner.className = "corner";
+      schedule.appendChild(corner);
+
+      days.forEach((day, index) => {
+        const dayHeader = document.createElement("div");
+        dayHeader.className = "day-header";
+        dayHeader.textContent = day;
+        dayHeader.style.gridColumn = index + 2;
+        dayHeader.style.gridRow = 1;
+        schedule.appendChild(dayHeader);
+      });
+
+      for (let hour = 0; hour < 24; hour++) {
+        const timeLabel = document.createElement("div");
+        timeLabel.className = "time-label";
+        timeLabel.textContent = `${hour.toString().padStart(2, "0")}:00`;
+        timeLabel.style.gridColumn = 1;
+        timeLabel.style.gridRow = hour + 2;
+        schedule.appendChild(timeLabel);
+
+        for (let day = 0; day < 7; day++) {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.style.gridColumn = day + 2;
+          cell.style.gridRow = hour + 2;
+          schedule.appendChild(cell);
+        }
+      }
+
+      for (let day = 0; day < 7; day++) {
+        const column = document.createElement("div");
+        column.className = "day-column";
+        column.dataset.day = day;
+        column.style.gridColumn = day + 2;
+        schedule.appendChild(column);
+      }
+    }
+
+    function renderEvents() {
+      document.querySelectorAll(".day-column").forEach(column => {
+        column.innerHTML = "";
+      });
+
+      events.forEach(event => {
+        const column = document.querySelector(`.day-column[data-day="${event.day}"]`);
+        if (!column) return;
+
+        const startMinutes = timeToMinutes(event.startTime);
+        const endMinutes = timeToMinutes(event.endTime);
+        const duration = endMinutes - startMinutes;
+
+        const eventEl = document.createElement("div");
+        eventEl.className = "event";
+        eventEl.style.top = `${startMinutes}px`;
+        eventEl.style.height = `${duration}px`;
+        eventEl.style.background = event.color;
+
+        eventEl.innerHTML = `
+          <div class="event-title">${escapeHTML(event.title)}</div>
+          <div class="event-time">${event.startTime} ~ ${event.endTime}</div>
+          ${event.memo ? `<div class="event-memo">${escapeHTML(event.memo)}</div>` : ""}
+        `;
+
+        eventEl.addEventListener("click", () => openModal(event.id));
+        column.appendChild(eventEl);
+      });
+    }
+
+    function escapeHTML(text) {
+      return text
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function openModal(id) {
+      const event = events.find(item => item.id === id);
+      if (!event) return;
+
+      selectedEventId = id;
+      modalTitle.textContent = event.title;
+      modalDay.textContent = `요일: ${days[event.day]}요일`;
+      modalTime.textContent = `시간: ${event.startTime} ~ ${event.endTime}`;
+      modalMemo.textContent = event.memo ? `메모: ${event.memo}` : "메모 없음";
+      modalBg.style.display = "flex";
+    }
+
+    function closeModal() {
+      modalBg.style.display = "none";
+      selectedEventId = null;
+    }
+
+    eventForm.addEventListener("submit", event => {
+      event.preventDefault();
+
+      const title = document.getElementById("title").value.trim();
+      const day = Number(document.getElementById("day").value);
+      const startTime = document.getElementById("startTime").value;
+      const endTime = document.getElementById("endTime").value;
+      const color = document.getElementById("color").value;
+      const memo = document.getElementById("memo").value.trim();
+
+      const startMinutes = timeToMinutes(startTime);
+      const endMinutes = timeToMinutes(endTime);
+
+      if (startMinutes >= endMinutes) {
+        alert("종료 시간은 시작 시간보다 늦어야 합니다.");
+        return;
+      }
+
+      const newEvent = {
+        id: Date.now().toString(),
+        title,
+        day,
+        startTime,
+        endTime,
+        color,
+        memo
+      };
+
+      if (hasConflict(newEvent)) {
+        alert("이미 같은 시간대에 일정이 있습니다.");
+        return;
+      }
+
+      events.push(newEvent);
+      saveEvents();
+      renderEvents();
+      eventForm.reset();
+      document.getElementById("color").value = "#3b82f6";
+    });
+
+    deleteEventBtn.addEventListener("click", () => {
+      if (!selectedEventId) return;
+
+      events = events.filter(event => event.id !== selectedEventId);
+      saveEvents();
+      renderEvents();
+      closeModal();
+    });
+
+    closeModalBtn.addEventListener("click", closeModal);
+
+    modalBg.addEventListener("click", event => {
+      if (event.target === modalBg) closeModal();
+    });
+
+    clearAllBtn.addEventListener("click", () => {
+      if (!confirm("모든 일정을 삭제할까요?")) return;
+      events = [];
+      saveEvents();
+      renderEvents();
+    });
+
+    buildScheduleGrid();
+    renderEvents();
+  </script>
+</body>
+</html>
