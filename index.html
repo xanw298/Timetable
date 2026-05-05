@@ -259,13 +259,61 @@
     }
 
     @media (max-width: 800px) {
+      header {
+        padding: 14px 16px;
+      }
+
+      header h1 {
+        font-size: 20px;
+      }
+
       .app {
         flex-direction: column;
+        padding: 12px;
+        gap: 12px;
       }
 
       .form-panel {
         width: 100%;
         position: static;
+        padding: 14px;
+      }
+
+      .schedule-wrap {
+        border-radius: 10px;
+      }
+
+      .schedule {
+        min-width: 640px;
+        grid-template-columns: 48px repeat(7, 1fr);
+        grid-template-rows: 34px repeat(24, 36px);
+      }
+
+      .day-header {
+        font-size: 13px;
+      }
+
+      .time-label {
+        font-size: 11px;
+        padding-top: 4px;
+      }
+
+      .event {
+        left: 2px;
+        right: 2px;
+        padding: 4px;
+        border-radius: 5px;
+      }
+
+      .event-title {
+        font-size: 11px;
+        margin-bottom: 2px;
+      }
+
+      .event-time,
+      .event-memo {
+        font-size: 9px;
+        line-height: 1.2;
       }
     }
   </style>
@@ -456,8 +504,11 @@
 
         const eventEl = document.createElement("div");
         eventEl.className = "event";
-        eventEl.style.top = `${startMinutes}px`;
-        eventEl.style.height = `${duration}px`;
+        const hourHeight = window.innerWidth <= 800 ? 36 : 60;
+        const minuteHeight = hourHeight / 60;
+
+        eventEl.style.top = `${startMinutes * minuteHeight}px`;
+        eventEl.style.height = `${duration * minuteHeight}px`;
         eventEl.style.background = event.color;
 
         eventEl.innerHTML = `
@@ -623,6 +674,8 @@
       saveEvents();
       renderEvents();
     });
+
+    window.addEventListener("resize", renderEvents);
 
     buildScheduleGrid();
     renderEvents();
