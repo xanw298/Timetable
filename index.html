@@ -113,13 +113,14 @@
       border-radius: 12px;
     }
 
-   .schedule {
-  display: grid;
-  width: 100%;
-  grid-template-columns: 22px repeat(7, 1fr);
-  grid-template-rows: 22px repeat(16, 26px);
-  position: relative;
-}
+    .schedule {
+      display: grid;
+      width: 100%;
+      grid-template-columns: 22px repeat(7, 1fr);
+      /* 핵심: 가로 기준으로 세로 맞추기 */
+      grid-template-rows: 22px repeat(16, calc((100vw - 22px) / 7));
+      position: relative;
+    }
 
     .corner {
       grid-column: 1;
@@ -249,11 +250,6 @@
       gap: 8px;
       margin-top: 16px;
     }
-
-    .day-column {
-  position: relative;
-  grid-row: 2 / span 16;
-}
 
     .modal-actions button {
       margin-top: 0;
