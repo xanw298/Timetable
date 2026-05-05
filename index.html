@@ -437,14 +437,16 @@
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-    // 여기에 Firebase 프로젝트 설정값을 넣어야 Google 로그인이 작동함
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      appId: "YOUR_APP_ID"
-    };
-
+  apiKey: "AIzaSyCC8AhKrsSQB7nA9NexD0aUYvrSusODUPA",
+  authDomain: "timetable-29968.firebaseapp.com",
+  projectId: "timetable-29968",
+  storageBucket: "timetable-29968.firebasestorage.app",
+  messagingSenderId: "57441222194",
+  appId: "1:57441222194:web:e50fb8e803b104c10c462b",
+  measurementId: "G-9G0MSYEYHP"
+};
+    
     const firebaseApp = initializeApp(firebaseConfig);
     const auth = getAuth(firebaseApp);
     const provider = new GoogleAuthProvider();
