@@ -286,36 +286,36 @@
       .schedule {
         width: 100%;
         min-width: 0;
-        grid-template-columns: 30px repeat(7, minmax(38px, 1fr));
-        grid-template-rows: 26px repeat(24, 32px);
+        grid-template-columns: 22px repeat(7, minmax(30px, 1fr));
+        grid-template-rows: 22px repeat(24, 26px);
       }
 
       .day-header {
-        font-size: 11px;
+        font-size: 9px;
         padding: 0;
       }
 
       .time-label {
-        font-size: 9px;
-        padding-top: 3px;
+        font-size: 8px;
+        padding-top: 2px;
       }
 
       .event {
-        left: 1px;
-        right: 1px;
-        padding: 3px;
-        border-radius: 4px;
+        left: 0px;
+        right: 0px;
+        padding: 2px;
+        border-radius: 3px;
       }
 
       .event-title {
-        font-size: 9px;
+        font-size: 8px;
         margin-bottom: 1px;
       }
 
       .event-time,
       .event-memo {
-        font-size: 8px;
-        line-height: 1.1;
+        font-size: 7px;
+        line-height: 1.05;
       }
     }
   </style>
@@ -506,7 +506,7 @@
 
         const eventEl = document.createElement("div");
         eventEl.className = "event";
-        const hourHeight = window.innerWidth <= 800 ? 32 : 60;
+        const hourHeight = window.innerWidth <= 800 ? 26 : 60;
         const minuteHeight = hourHeight / 60;
 
         eventEl.style.top = `${startMinutes * minuteHeight}px`;
