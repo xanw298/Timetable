@@ -160,6 +160,8 @@
       background: #111111;
       border: 1px solid #333;
       border-radius: 12px;
+      max-height: none;
+      overflow-y: visible;
     }
 
     .schedule {
@@ -337,14 +339,16 @@
 
       .schedule-wrap {
         border-radius: 10px;
+        max-height: none;
+        overflow-y: visible;
       }
 
       .schedule {
-  width: 100%;
-  min-width: 0;
-  grid-template-columns: 22px repeat(7, 1fr);
-  grid-template-rows: 22px repeat(16, calc((100% - 22px) / 7));
-}
+       width: 100%;
+       min-width: 0;
+       grid-template-columns: 22px repeat(7, 1fr);
+       grid-template-rows: 22px repeat(16, calc((100% - 22px) / 7));
+      }
 
       .day-header {
         font-size: 9px;
