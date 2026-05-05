@@ -220,6 +220,7 @@
       cursor: pointer;
       box-shadow: none;
       border: 1px solid rgba(255,255,255,0.12);
+      z-index: 5;
     }
 
     .event-title {
@@ -589,16 +590,17 @@
         const column = document.querySelector(`.day-column[data-day="${event.day}"]`);
         if (!column) return;
 
-        const startMinutes = timeToMinutes(event.startTime);
-        const endMinutes = timeToMinutes(event.endTime);
+        const startMinutes = Math.max(0, timeToMinutes(event.startTime) - 360);
+        const endMinutes = Math.max(0, timeToMinutes(event.endTime) - 360);
         const duration = endMinutes - startMinutes;
 
         const eventEl = document.createElement("div");
         eventEl.className = "event";
         // derive hour height from CSS (square cells)
-        const hourHeight = window.innerWidth <= 800 ? 26 : 60;
-        const minuteHeight = hourHeight / 60;
-
+       const cell = document.querySelector(".cell");
+       const hourHeight = cell.getBoundingClientRect().height;
+       const minuteHeight = hourHeight / 60;
+        
         eventEl.style.top = `${startMinutes * minuteHeight}px`;
         eventEl.style.height = `${duration * minuteHeight}px`;
         eventEl.style.background = event.color;
