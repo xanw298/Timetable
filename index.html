@@ -167,7 +167,7 @@
       width: 100%;
       grid-template-columns: 22px repeat(7, 1fr);
       /* 핵심: 가로 기준으로 세로 맞추기 */
-      grid-template-rows: 22px repeat(16, calc((100vw - 22px) / 7));
+      grid-template-rows: 22px repeat(16, calc((100% - 22px) / 7));
       position: relative;
     }
 
@@ -228,6 +228,7 @@
       position: absolute;
       left: 0;
       right: 0;
+      z-index: 5;
       padding: 5px;
       border-radius: 1px;
       color: white;
@@ -339,11 +340,11 @@
       }
 
       .schedule {
-        width: 100%;
-        min-width: 0;
-        grid-template-columns: 22px repeat(7, minmax(30px, 1fr));
-        grid-template-rows: 22px repeat(24, 26px);
-      }
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: 22px repeat(7, 1fr);
+  grid-template-rows: 22px repeat(16, calc((100% - 22px) / 7));
+}
 
       .day-header {
         font-size: 9px;
