@@ -78,6 +78,21 @@
       top: 20px;
     }
 
+    .color-palette {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.color-chip {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
     .form-panel h2 {
       margin: 0 0 16px;
       font-size: 18px;
@@ -220,7 +235,6 @@
       cursor: pointer;
       box-shadow: none;
       border: 1px solid rgba(255,255,255,0.12);
-      z-index: 5;
     }
 
     .event-title {
@@ -401,6 +415,8 @@
         <label for="color">색상</label>
         <input id="color" type="color" value="#3b82f6" />
 
+        <div id="colorPalette" class="color-palette"></div>
+
         <label for="memo">메모</label>
         <textarea id="memo" placeholder="선택 사항"></textarea>
 
@@ -438,16 +454,14 @@
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
+    // 여기에 Firebase 프로젝트 설정값을 넣어야 Google 로그인이 작동함
     const firebaseConfig = {
-  apiKey: "AIzaSyCC8AhKrsSQB7nA9NexD0aUYvrSusODUPA",
-  authDomain: "timetable-29968.firebaseapp.com",
-  projectId: "timetable-29968",
-  storageBucket: "timetable-29968.firebasestorage.app",
-  messagingSenderId: "57441222194",
-  appId: "1:57441222194:web:e50fb8e803b104c10c462b",
-  measurementId: "G-9G0MSYEYHP"
-};
-    
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      appId: "YOUR_APP_ID"
+    };
+
     const firebaseApp = initializeApp(firebaseConfig);
     const auth = getAuth(firebaseApp);
     const provider = new GoogleAuthProvider();
@@ -461,6 +475,13 @@
     const logoutBtn = document.getElementById("logoutBtn");
     const userInfo = document.getElementById("userInfo");
     const eventForm = document.getElementById("eventForm");
+    const colorInput = document.getElementById("color");
+    const recentColorsWrap = document.createElement("div");
+    recentColorsWrap.id = "recentColors";
+    recentColorsWrap.style.display = "flex";
+    recentColorsWrap.style.gap = "6px";
+    recentColorsWrap.style.marginTop = "6px";
+    colorInput.parentElement.appendChild(recentColorsWrap);
     const clearAllBtn = document.getElementById("clearAllBtn");
 
     const modalBg = document.getElementById("modalBg");
@@ -495,6 +516,7 @@
     });
 
     let events = [];
+    let recentColors = JSON.parse(localStorage.getItem("recentColors")) || [];
     let selectedEventId = null;
 
     function getStorageKey() {
@@ -505,6 +527,27 @@
     function loadEvents() {
       const key = getStorageKey();
       events = key ? JSON.parse(localStorage.getItem(key)) || [] : [];
+    }
+
+    function saveRecentColors() {
+      localStorage.setItem("recentColors", JSON.stringify(recentColors.slice(0,5)));
+    }
+
+    function renderRecentColors() {
+      recentColorsWrap.innerHTML = "";
+      recentColors.slice(0,5).forEach(color => {
+        const box = document.createElement("div");
+        box.style.width = "20px";
+        box.style.height = "20px";
+        box.style.background = color;
+        box.style.borderRadius = "4px";
+        box.style.cursor = "pointer";
+        box.style.border = "1px solid #444";
+        box.addEventListener("click", () => {
+          colorInput.value = color;
+        });
+        recentColorsWrap.appendChild(box);
+      });
     }
 
     function saveEvents() {
@@ -590,17 +633,16 @@
         const column = document.querySelector(`.day-column[data-day="${event.day}"]`);
         if (!column) return;
 
-        const startMinutes = Math.max(0, timeToMinutes(event.startTime) - 360);
-        const endMinutes = Math.max(0, timeToMinutes(event.endTime) - 360);
+        const startMinutes = timeToMinutes(event.startTime);
+        const endMinutes = timeToMinutes(event.endTime);
         const duration = endMinutes - startMinutes;
 
         const eventEl = document.createElement("div");
         eventEl.className = "event";
         // derive hour height from CSS (square cells)
-       const cell = document.querySelector(".cell");
-       const hourHeight = cell.getBoundingClientRect().height;
-       const minuteHeight = hourHeight / 60;
-        
+        const hourHeight = window.innerWidth <= 800 ? 26 : 60;
+        const minuteHeight = hourHeight / 60;
+
         eventEl.style.top = `${startMinutes * minuteHeight}px`;
         eventEl.style.height = `${duration * minuteHeight}px`;
         eventEl.style.background = event.color;
@@ -697,6 +739,15 @@
       }
 
       events.push(newEvent);
+
+      // 최근 색상 저장
+      if (!recentColors.includes(color)) {
+        recentColors.unshift(color);
+      } else {
+        recentColors = [color, ...recentColors.filter(c => c !== color)];
+      }
+      saveRecentColors();
+      renderRecentColors();
       saveEvents();
       renderEvents();
       eventForm.reset();
@@ -803,6 +854,33 @@
     });
 
     window.addEventListener("resize", renderEvents);
+
+    const recommendedColors = [
+  "#3b82f6",
+  "#ef4444",
+  "#22c55e",
+  "#eab308",
+  "#a855f7",
+  "#14b8a6",
+  "#f97316",
+  "#ec4899"
+];
+
+const colorPalette = document.getElementById("colorPalette");
+const colorInput = document.getElementById("color");
+
+recommendedColors.forEach(color => {
+  const chip = document.createElement("div");
+  chip.className = "color-chip";
+  chip.style.background = color;
+
+  chip.addEventListener("click", () => {
+    colorInput.value = color;
+  });
+
+  colorPalette.appendChild(chip);
+});
+    renderRecentColors();
   </script>
 </body>
 </html>
