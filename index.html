@@ -636,14 +636,15 @@
         const column = document.querySelector(`.day-column[data-day="${event.day}"]`);
         if (!column) return;
 
-        const startMinutes = timeToMinutes(event.startTime);
-        const endMinutes = timeToMinutes(event.endTime);
-        const duration = endMinutes - startMinutes;
+        const startMinutes = timeToMinutes(event.startTime) - (6 * 60);
+const endMinutes = timeToMinutes(event.endTime) - (6 * 60);
+const duration = endMinutes - startMinutes;
 
         const eventEl = document.createElement("div");
         eventEl.className = "event";
         // derive hour height from CSS (square cells)
-        const hourHeight = window.innerWidth <= 800 ? 26 : 60;
+        const cell = document.querySelector(".cell");
+const hourHeight = cell.getBoundingClientRect().height;
         const minuteHeight = hourHeight / 60;
 
         eventEl.style.top = `${startMinutes * minuteHeight}px`;
@@ -870,7 +871,6 @@
 ];
 
 const colorPalette = document.getElementById("colorPalette");
-const colorInput = document.getElementById("color");
 
 recommendedColors.forEach(color => {
   const chip = document.createElement("div");
