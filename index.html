@@ -116,10 +116,9 @@
     .schedule {
       width: 100%;
       min-width: 0;
-      /* 22px = time column */
+      /* 에타 느낌: 작은 정사각형 */
       grid-template-columns: 22px repeat(7, 1fr);
-      /* hour height equals column width for square cells */
-      grid-auto-rows: calc((100vw - 22px) / 7);
+      grid-template-rows: 22px repeat(16, 26px);
       position: relative;
     }
 
@@ -489,7 +488,7 @@
         column.className = "day-column";
         column.dataset.day = day;
         column.style.gridColumn = day + 2;
-        column.style.gridRow = 2 / span 16;
+        column.style.gridRow = "2 / span 16";
         schedule.appendChild(column);
       }
     }
@@ -509,6 +508,7 @@
 
         const eventEl = document.createElement("div");
         eventEl.className = "event";
+        // derive hour height from CSS (square cells)
         const hourHeight = window.innerWidth <= 800 ? 26 : 60;
         const minuteHeight = hourHeight / 60;
 
