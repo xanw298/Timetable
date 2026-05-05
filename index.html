@@ -13,14 +13,14 @@
     body {
       margin: 0;
       font-family: Arial, "Noto Sans KR", sans-serif;
-      background: #f5f5f5;
-      color: #222;
+      background: #111111;
+      color: #f2f2f2;
     }
 
     header {
       padding: 20px 24px;
-      background: #ffffff;
-      border-bottom: 1px solid #ddd;
+      background: #111111;
+      border-bottom: 1px solid #222;
     }
 
     header h1 {
@@ -31,8 +31,8 @@
     .auth-panel {
       margin: 20px;
       padding: 16px;
-      background: #ffffff;
-      border: 1px solid #ddd;
+      background: #1b1b1b;
+      border: 1px solid #2f2f2f;
       border-radius: 12px;
       display: flex;
       gap: 10px;
@@ -58,7 +58,7 @@
 
     .user-info {
       font-size: 14px;
-      color: #555;
+      color: #aaa;
     }
 
     .app {
@@ -70,8 +70,8 @@
     .form-panel {
       width: 280px;
       padding: 18px;
-      background: #ffffff;
-      border: 1px solid #ddd;
+      background: #1b1b1b;
+      border: 1px solid #2f2f2f;
       border-radius: 12px;
       height: fit-content;
       position: sticky;
@@ -104,9 +104,10 @@
     select,
     textarea {
       padding: 10px;
-      border: 1px solid #ccc;
+      border: 1px solid #333;
       border-radius: 8px;
-      background: #fff;
+      background: #111;
+      color: #f2f2f2;
     }
 
     textarea {
@@ -141,8 +142,8 @@
     .schedule-wrap {
       flex: 1;
       overflow: auto;
-      background: #fff;
-      border: 1px solid #ddd;
+      background: #111111;
+      border: 1px solid #333;
       border-radius: 12px;
     }
 
@@ -158,9 +159,9 @@
     .corner {
       grid-column: 1;
       grid-row: 1;
-      background: #fafafa;
-      border-right: 1px solid #ddd;
-      border-bottom: 1px solid #ddd;
+      background: #111111;
+      border-right: 1px solid #333;
+      border-bottom: 1px solid #333;
       position: sticky;
       top: 0;
       left: 0;
@@ -171,10 +172,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #fafafa;
-      border-right: 1px solid #ddd;
-      border-bottom: 1px solid #ddd;
+      background: #111111;
+      border-right: 1px solid #333;
+      border-bottom: 1px solid #333;
       font-weight: bold;
+      color: #cfcfcf;
       position: sticky;
       top: 0;
       z-index: 10;
@@ -185,37 +187,39 @@
       align-items: flex-start;
       justify-content: center;
       padding-top: 6px;
-      background: #fafafa;
-      border-right: 1px solid #ddd;
-      border-bottom: 1px solid #eee;
+      background: #111111;
+      border-right: 1px solid #333;
+      border-bottom: 1px solid #292929;
       font-size: 12px;
-      color: #666;
+      color: #aaa;
       position: sticky;
       left: 0;
       z-index: 8;
     }
 
     .cell {
-      border-right: 1px solid #eee;
-      border-bottom: 1px solid #eee;
-      background: #fff;
+      border-right: 1px solid #2c2c2c;
+      border-bottom: 1px solid #2c2c2c;
+      background: #111111;
     }
 
     .day-column {
       position: relative;
-      grid-row: 2 / span 24;
+      grid-row: 2 / span 16;
+      overflow: hidden;
     }
 
     .event {
       position: absolute;
-      left: 4px;
-      right: 4px;
-      padding: 7px;
-      border-radius: 8px;
+      left: 0;
+      right: 0;
+      padding: 5px;
+      border-radius: 1px;
       color: white;
       overflow: hidden;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.16);
+      box-shadow: none;
+      border: 1px solid rgba(255,255,255,0.12);
     }
 
     .event-title {
@@ -256,9 +260,11 @@
     .modal {
       width: 360px;
       max-width: 100%;
-      background: #fff;
+      background: #1b1b1b;
+      color: #f2f2f2;
       border-radius: 14px;
       padding: 20px;
+      border: 1px solid #333;
     }
 
     .modal h3 {
@@ -335,10 +341,11 @@
       }
 
       .event {
-        left: 0px;
-        right: 0px;
+        left: 0;
+        right: 0;
         padding: 2px;
-        border-radius: 3px;
+        border-radius: 1px;
+        box-shadow: none;
       }
 
       .event-title {
@@ -430,15 +437,13 @@
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
+    // 여기에 Firebase 프로젝트 설정값을 넣어야 Google 로그인이 작동함
     const firebaseConfig = {
-  apiKey: "AIzaSyCC8AhKrsSQB7nA9NexD0aUYvrSusODUPA",
-  authDomain: "timetable-29968.firebaseapp.com",
-  projectId: "timetable-29968",
-  storageBucket: "timetable-29968.firebasestorage.app",
-  messagingSenderId: "57441222194",
-  appId: "1:57441222194:web:e50fb8e803b104c10c462b",
-  measurementId: "G-9G0MSYEYHP"
-};
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      appId: "YOUR_APP_ID"
+    };
 
     const firebaseApp = initializeApp(firebaseConfig);
     const auth = getAuth(firebaseApp);
@@ -582,8 +587,8 @@
         const column = document.querySelector(`.day-column[data-day="${event.day}"]`);
         if (!column) return;
 
-        const startMinutes = timeToMinutes(event.startTime) - (6 * 60);
-        const endMinutes = timeToMinutes(event.endTime) - (6 * 60);
+        const startMinutes = timeToMinutes(event.startTime);
+        const endMinutes = timeToMinutes(event.endTime);
         const duration = endMinutes - startMinutes;
 
         const eventEl = document.createElement("div");
