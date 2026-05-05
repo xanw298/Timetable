@@ -449,6 +449,12 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import {
       getAuth,
       GoogleAuthProvider,
       signInWithPopup,
@@ -469,6 +475,7 @@
     const firebaseApp = initializeApp(firebaseConfig);
     const auth = getAuth(firebaseApp);
     const provider = new GoogleAuthProvider();
+    const db = getFirestore(firebaseApp);
 
     let currentUser = null;
     const days = ["월", "화", "수", "목", "금", "토", "일"];
@@ -528,11 +535,19 @@
       return `weeklyEvents_${currentUser.uid}`;
     }
 
-    function loadEvents() {
-      const key = getStorageKey();
-      events = key ? JSON.parse(localStorage.getItem(key)) || [] : [];
-    }
+   async function loadEvents() {
+  if (!currentUser) return;
 
+  const docRef = doc(db, "users", currentUser.uid);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    events = docSnap.data().events || [];
+  } else {
+    events = [];
+  }
+}
+    
     function saveRecentColors() {
       localStorage.setItem("recentColors", JSON.stringify(recentColors.slice(0,5)));
     }
@@ -554,11 +569,13 @@
       });
     }
 
-    function saveEvents() {
-      const key = getStorageKey();
-      if (!key) return;
-      localStorage.setItem(key, JSON.stringify(events));
-    }
+    async function saveEvents() {
+  if (!currentUser) return;
+
+  await setDoc(doc(db, "users", currentUser.uid), {
+    events: events
+  });
+}
 
     function timeToMinutes(time) {
       const [hour, minute] = time.split(":").map(Number);
@@ -831,7 +848,7 @@ const hourHeight = cell.getBoundingClientRect().height;
       await signOut(auth);
     });
 
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, async user => {
       currentUser = user;
 
       if (user) {
@@ -839,9 +856,9 @@ const hourHeight = cell.getBoundingClientRect().height;
         logoutBtn.style.display = "inline-block";
         userInfo.textContent = `${user.displayName || "사용자"}님 로그인 중`;
         mainApp.style.display = "flex";
-        loadEvents();
-        buildScheduleGrid();
-        renderEvents();
+        await loadEvents();
+buildScheduleGrid();
+renderEvents();
       } else {
         googleLoginBtn.style.display = "inline-block";
         logoutBtn.style.display = "none";
