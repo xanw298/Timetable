@@ -113,14 +113,13 @@
       border-radius: 12px;
     }
 
-    .schedule {
-      width: 100%;
-      min-width: 0;
-      /* 에타 느낌: 작은 정사각형 */
-      grid-template-columns: 22px repeat(7, 1fr);
-      grid-template-rows: 22px repeat(16, 26px);
-      position: relative;
-    }
+   .schedule {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 22px repeat(7, 1fr);
+  grid-template-rows: 22px repeat(16, 26px);
+  position: relative;
+}
 
     .corner {
       grid-column: 1;
@@ -250,6 +249,11 @@
       gap: 8px;
       margin-top: 16px;
     }
+
+    .day-column {
+  position: relative;
+  grid-row: 2 / span 16;
+}
 
     .modal-actions button {
       margin-top: 0;
