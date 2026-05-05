@@ -582,8 +582,8 @@
         const column = document.querySelector(`.day-column[data-day="${event.day}"]`);
         if (!column) return;
 
-        const startMinutes = timeToMinutes(event.startTime);
-        const endMinutes = timeToMinutes(event.endTime);
+        const startMinutes = timeToMinutes(event.startTime) - (6 * 60);
+        const endMinutes = timeToMinutes(event.endTime) - (6 * 60);
         const duration = endMinutes - startMinutes;
 
         const eventEl = document.createElement("div");
