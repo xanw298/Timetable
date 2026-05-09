@@ -399,6 +399,8 @@ transform: translateZ(0);
 
         <div id="colorPalette" class="color-palette"></div>
 
+        <div id="recentColors" class="recent-colors"></div>
+
         <label for="memo">메모</label>
         <textarea id="memo"></textarea>
 
@@ -499,6 +501,8 @@ transform: translateZ(0);
 
     const colorInput = document.getElementById("color");
     const colorPalette = document.getElementById("colorPalette");
+    const recentColorsWrap = document.getElementById("recentColors");
+let recentColors = JSON.parse(localStorage.getItem("recentColors")) || [];
 
     const modalBg = document.getElementById("modalBg");
     const modalTitle = document.getElementById("modalTitle");
@@ -620,6 +624,21 @@ const editMemo = document.getElementById("editMemo");
       return brightness > 150 ? "#111" : "#fff";
     }
 
+    events.push(newEvent);
+
+if (!recentColors.includes(color)) {
+  recentColors.unshift(color);
+} else {
+  recentColors = [color, ...recentColors.filter(c => c !== color)];
+}
+
+recentColors = recentColors.slice(0, 5);
+localStorage.setItem("recentColors", JSON.stringify(recentColors));
+renderRecentColors();
+
+await saveEvents();
+renderEvents();
+
     function renderEvents() {
       document.querySelectorAll(".day-column").forEach(col => {
         col.innerHTML = "";
@@ -711,10 +730,21 @@ const editMemo = document.getElementById("editMemo");
         return;
       }
 
-      events.push(newEvent);
-      await saveEvents();
-      renderEvents();
+     events.push(newEvent);
 
+if (!recentColors.includes(color)) {
+  recentColors.unshift(color);
+} else {
+  recentColors = [color, ...recentColors.filter(c => c !== color)];
+}
+
+recentColors = recentColors.slice(0, 5);
+localStorage.setItem("recentColors", JSON.stringify(recentColors));
+renderRecentColors();
+
+await saveEvents();
+renderEvents();
+      
       eventForm.reset();
       colorInput.value = "#3b82f6";
     }
@@ -845,6 +875,7 @@ const editMemo = document.getElementById("editMemo");
     });
 
     window.addEventListener("resize", renderEvents);
+    renderRecentColors();
   </script>
 </body>
 </html>
