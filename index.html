@@ -406,15 +406,39 @@
 
     <div class="modal-bg" id="modalBg">
     <div class="modal">
-      <h3 id="modalTitle"></h3>
-      <p id="modalDay"></p>
-      <p id="modalTime"></p>
-      <p id="modalMemo"></p>
+     <h3>일정 수정</h3>
 
+<label>일정 이름</label>
+<input id="editTitle" type="text">
+
+<label>요일</label>
+<select id="editDay">
+  <option value="0">월요일</option>
+  <option value="1">화요일</option>
+  <option value="2">수요일</option>
+  <option value="3">목요일</option>
+  <option value="4">금요일</option>
+  <option value="5">토요일</option>
+  <option value="6">일요일</option>
+</select>
+
+<label>시작 시간</label>
+<input id="editStartTime" type="time">
+
+<label>종료 시간</label>
+<input id="editEndTime" type="time">
+
+<label>색상</label>
+<input id="editColor" type="color">
+
+<label>메모</label>
+<textarea id="editMemo"></textarea>
+      
       <div class="modal-actions">
-        <button class="delete-btn" id="deleteEventBtn">삭제</button>
-        <button class="close-btn" id="closeModalBtn">닫기</button>
-      </div>
+  <button class="add-btn" id="saveEditBtn">수정 저장</button>
+  <button class="delete-btn" id="deleteEventBtn">삭제</button>
+  <button class="close-btn" id="closeModalBtn">닫기</button>
+</div>
     </div>
   </div>
 
@@ -476,6 +500,13 @@
 
     const deleteEventBtn = document.getElementById("deleteEventBtn");
     const closeModalBtn = document.getElementById("closeModalBtn");
+    const saveEditBtn = document.getElementById("saveEditBtn");
+const editTitle = document.getElementById("editTitle");
+const editDay = document.getElementById("editDay");
+const editStartTime = document.getElementById("editStartTime");
+const editEndTime = document.getElementById("editEndTime");
+const editColor = document.getElementById("editColor");
+const editMemo = document.getElementById("editMemo");
 
     const recommendedColors = [
       "#3b82f6","#ef4444","#22c55e","#eab308",
@@ -681,18 +712,20 @@
     }
 
     function openModal(id) {
-      const event = events.find(e => e.id === id);
-      if (!event) return;
+  const event = events.find(e => e.id === id);
+  if (!event) return;
 
-      selectedEventId = id;
+  selectedEventId = id;
 
-      modalTitle.textContent = event.title;
-      modalDay.textContent = `요일: ${days[event.day]}요일`;
-      modalTime.textContent = `시간: ${event.startTime} ~ ${event.endTime}`;
-      modalMemo.textContent = event.memo ? `메모: ${event.memo}` : "메모 없음";
+  editTitle.value = event.title;
+  editDay.value = event.day;
+  editStartTime.value = event.startTime;
+  editEndTime.value = event.endTime;
+  editColor.value = event.color;
+  editMemo.value = event.memo || "";
 
-      modalBg.style.display = "flex";
-    }
+  modalBg.style.display = "flex";
+}
 
     function closeModal() {
       modalBg.style.display = "none";
@@ -708,8 +741,53 @@
       closeModal();
     }
 
+    async function saveEditedEvent() {
+  if (!selectedEventId) return;
+
+  const title = editTitle.value.trim();
+  const day = Number(editDay.value);
+  const startTime = editStartTime.value;
+  const endTime = editEndTime.value;
+  const color = editColor.value;
+  const memo = editMemo.value.trim();
+
+  if (!title) {
+    alert("일정 이름을 입력해주세요.");
+    return;
+  }
+
+  if (timeToMinutes(startTime) >= timeToMinutes(endTime)) {
+    alert("종료 시간은 시작 시간보다 늦어야 합니다.");
+    return;
+  }
+
+  const updatedEvent = {
+    id: selectedEventId,
+    title,
+    day,
+    startTime,
+    endTime,
+    color,
+    memo
+  };
+
+  if (hasConflict(updatedEvent, selectedEventId)) {
+    alert("이미 같은 시간대에 일정이 있습니다.");
+    return;
+  }
+
+  events = events.map(event =>
+    event.id === selectedEventId ? updatedEvent : event
+  );
+
+  await saveEvents();
+  renderEvents();
+  closeModal();
+}
+
     eventForm.addEventListener("submit", addEvent);
 
+    saveEditBtn.addEventListener("click", saveEditedEvent);
     deleteEventBtn.addEventListener("click", deleteSelectedEvent);
     closeModalBtn.addEventListener("click", closeModal);
 
