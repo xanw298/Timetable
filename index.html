@@ -624,21 +624,22 @@ const editMemo = document.getElementById("editMemo");
       return brightness > 150 ? "#111" : "#fff";
     }
 
-    events.push(newEvent);
+    function renderRecentColors() {
+  recentColorsWrap.innerHTML = "";
 
-if (!recentColors.includes(color)) {
-  recentColors.unshift(color);
-} else {
-  recentColors = [color, ...recentColors.filter(c => c !== color)];
+  recentColors.slice(0, 5).forEach(color => {
+    const chip = document.createElement("div");
+    chip.className = "recent-color-chip";
+    chip.style.background = color;
+
+    chip.addEventListener("click", () => {
+      colorInput.value = color;
+    });
+
+    recentColorsWrap.appendChild(chip);
+  });
 }
-
-recentColors = recentColors.slice(0, 5);
-localStorage.setItem("recentColors", JSON.stringify(recentColors));
-renderRecentColors();
-
-await saveEvents();
-renderEvents();
-
+    
     function renderEvents() {
       document.querySelectorAll(".day-column").forEach(col => {
         col.innerHTML = "";
