@@ -239,6 +239,9 @@
       
       opacity: 1;
       filter: none;
+
+      -webkit-backface-visibility: hidden;
+transform: translateZ(0);
     }
 
     .event-title {
@@ -642,7 +645,7 @@ const editMemo = document.getElementById("editMemo");
         eventEl.className = "event";
         eventEl.style.top = `${visibleStart * minuteHeight}px`;
         eventEl.style.height = `${visibleDuration * minuteHeight}px`;
-        eventEl.style.backgroundcolor = event.color;
+        eventEl.style.background = event.color;
         eventEl.style.color = getTextColor(event.color);
 
         eventEl.innerHTML = `
