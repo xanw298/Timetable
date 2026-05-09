@@ -236,6 +236,9 @@
       overflow: hidden;
       cursor: pointer;
       border: 1px solid rgba(255,255,255,0.12);
+      
+      opacity: 1;
+      filter: none;
     }
 
     .event-title {
@@ -251,7 +254,6 @@
     .event-memo {
       font-size: 11px;
       line-height: 1.3;
-      opacity: 0.95;
     }
 
     .event-memo {
@@ -640,7 +642,7 @@ const editMemo = document.getElementById("editMemo");
         eventEl.className = "event";
         eventEl.style.top = `${visibleStart * minuteHeight}px`;
         eventEl.style.height = `${visibleDuration * minuteHeight}px`;
-        eventEl.style.background = event.color;
+        eventEl.style.backgroundcolor = event.color;
         eventEl.style.color = getTextColor(event.color);
 
         eventEl.innerHTML = `
