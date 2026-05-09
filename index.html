@@ -196,6 +196,7 @@
       position: sticky;
       top: 0;
       z-index: 10;
+    }
 
    .time-label {
       display: flex;
@@ -495,15 +496,42 @@
     }
 
     async function saveEvents() {
-      if (!currentUser) return;
-      await setDoc(doc(db, "users", currentUser.uid), { events });
-    }
+  if (!currentUser) {
+    alert("로그인 상태가 아닙니다.");
+    return;
+  }
 
-    async function loadEvents() {
-      if (!currentUser) return;
-      const snap = await getDoc(doc(db, "users", currentUser.uid));
-      events = snap.exists() ? snap.data().events || [] : [];
+  try {
+    await setDoc(doc(db, "users", currentUser.uid), {
+      events: events,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+
+    console.log("Firestore 저장 성공");
+  } catch (error) {
+    console.error("Firestore 저장 실패:", error);
+    alert("시간표 저장 실패: " + error.message);
+  }
+}
+    
+   async function loadEvents() {
+  if (!currentUser) return;
+
+  try {
+    const snap = await getDoc(doc(db, "users", currentUser.uid));
+
+    if (snap.exists()) {
+      events = snap.data().events || [];
+      console.log("Firestore 불러오기 성공", events);
+    } else {
+      events = [];
+      console.log("저장된 시간표 없음");
     }
+  } catch (error) {
+    console.error("Firestore 불러오기 실패:", error);
+    alert("시간표 불러오기 실패: " + error.message);
+  }
+}
 
     function buildScheduleGrid() {
       schedule.innerHTML = "";
