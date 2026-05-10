@@ -796,28 +796,35 @@ await loadFriends();
       });
 
       for (let h = 6; h < 22; h++) {
-        const t = document.createElement("div");
-        t.className = "time-label";
-        t.textContent = `${h}:00`;
-        t.style.gridRow = (h - 6) + 2;
-        schedule.appendChild(t);
+  const t = document.createElement("div");
+  t.className = "time-label";
+  t.textContent = `${h}:00`;
+  t.style.gridRow = (h - 6) + 2;
+  schedule.appendChild(t);
 
-        for (let d = 0; d < 7; d++) {
-          const c = document.createElement("div");
-          c.className = "cell";
-          c.style.gridColumn = d + 2;
-          c.style.gridRow = (h - 6) + 2;
-          schedule.appendChild(c);
-        }
-      }
+  for (let d = 0; d < 7; d++) {
+    const c = document.createElement("div");
+    c.className = "cell";
+    c.style.gridColumn = d + 2;
+    c.style.gridRow = (h - 6) + 2;
+    schedule.appendChild(c);
+  }
+}
 
-      for (let d = 0; d < 7; d++) {
-        const col = document.createElement("div");
-        col.className = "day-column";
-        col.dataset.day = d;
-        col.style.gridColumn = d + 2;
-        schedule.appendChild(col);
-      }
+const lastLabel = document.createElement("div");
+lastLabel.className = "time-label";
+lastLabel.textContent = "22:00";
+lastLabel.style.gridColumn = 1;
+lastLabel.style.gridRow = 18;
+schedule.appendChild(lastLabel);
+
+for (let d = 0; d < 7; d++) {
+  const col = document.createElement("div");
+  col.className = "day-column";
+  col.dataset.day = d;
+  col.style.gridColumn = d + 2;
+  schedule.appendChild(col);
+}
     }
 
         function getTextColor(bgColor) {
