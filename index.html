@@ -721,10 +721,10 @@ await loadFriends();
   try {
     const snap = await getDoc(doc(db, "users", uid));
 
-    if (snap.exists()) {
-      events = snap.data().events || [];
-      renderEvents();
-      alert("친구 시간표를 불러왔습니다.");
+   if (snap.exists()) {
+  events = snap.data().events || [];
+  renderEvents();
+}
     } else {
       alert("친구 시간표가 없습니다.");
     }
