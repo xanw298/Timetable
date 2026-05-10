@@ -642,7 +642,8 @@ await setDoc(doc(db, "users", currentUser.uid, "friends", friendUid), {
 });
     
     alert("친구가 추가되었습니다.");
-    friendUidInput.value = "";
+friendUidInput.value = "";
+await loadFriends();
   } catch (error) {
     console.error("친구 추가 실패:", error);
     alert("친구 추가 실패: " + error.message);
