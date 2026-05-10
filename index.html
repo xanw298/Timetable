@@ -463,6 +463,8 @@ transform: translateZ(0);
 <label>색상</label>
 <input id="editColor" type="color">
 
+<div id="editRecentColors" class="recent-colors"></div>
+
 <label>메모</label>
 <textarea id="editMemo"></textarea>
       
@@ -549,6 +551,7 @@ const editStartTime = document.getElementById("editStartTime");
 const editEndTime = document.getElementById("editEndTime");
 const editColor = document.getElementById("editColor");
 const editMemo = document.getElementById("editMemo");
+    const editRecentColorsWrap = document.getElementById("editRecentColors");
 
     const recommendedColors = [
       "#3b82f6","#ef4444","#22c55e","#eab308",
@@ -797,6 +800,22 @@ await loadFriends();
     recentColorsWrap.appendChild(chip);
   });
 }
+
+    function renderEditRecentColors() {
+  editRecentColorsWrap.innerHTML = "";
+
+  recentColors.slice(0, 10).forEach(color => {
+    const chip = document.createElement("div");
+    chip.className = "recent-color-chip";
+    chip.style.background = color;
+
+    chip.addEventListener("click", () => {
+      editColor.value = color;
+    });
+
+    editRecentColorsWrap.appendChild(chip);
+  });
+}
     
     function renderEvents() {
       document.querySelectorAll(".day-column").forEach(col => {
@@ -921,7 +940,9 @@ renderEvents();
   editColor.value = event.color;
   editMemo.value = event.memo || "";
 
-  modalBg.style.display = "flex";
+renderEditRecentColors();
+
+modalBg.style.display = "flex";
 }
 
     function closeModal() {
