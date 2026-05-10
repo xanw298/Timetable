@@ -909,6 +909,7 @@ renderEvents();
         googleLoginBtn.style.display = "none";
         logoutBtn.style.display = "inline-block";
         userInfo.textContent = `${user.displayName || "사용자"}님 로그인 중`;
+        myUid.textContent = user.uid;
         mainApp.style.display = "flex";
 
         buildScheduleGrid();
@@ -918,6 +919,7 @@ renderEvents();
         googleLoginBtn.style.display = "inline-block";
         logoutBtn.style.display = "none";
         userInfo.textContent = "로그인하면 시간표가 계정에 저장됩니다.";
+        myUid.textContent = "로그인 후 표시";
         mainApp.style.display = "none";
         events = [];
       }
