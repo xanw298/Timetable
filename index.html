@@ -1086,9 +1086,20 @@ if (hasAnyConflict) {
 
 events = [...eventsWithoutOriginal, ...updatedEvents];
 
-  await saveEvents();
-  renderEvents();
-  closeModal();
+if (!recentColors.includes(color)) {
+  recentColors.unshift(color);
+} else {
+  recentColors = [color, ...recentColors.filter(c => c !== color)];
+}
+
+recentColors = recentColors.slice(0, 10);
+
+renderRecentColors();
+renderEditRecentColors();
+
+await saveEvents();
+renderEvents();
+closeModal();
 }
 
     eventForm.addEventListener("submit", addEvent);
