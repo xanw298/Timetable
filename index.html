@@ -660,6 +660,12 @@ await loadFriends();
       collection(db, "users", currentUser.uid, "friends")
     );
 
+    const snap = await getDocs(
+  collection(db, "users", currentUser.uid, "friends")
+);
+
+console.log("친구 수:", snap.size);
+
     snap.forEach(friendDoc => {
       const data = friendDoc.data();
 
@@ -694,8 +700,9 @@ friendEl.querySelector("button").addEventListener("click", event => {
     });
 
   } catch (error) {
-    console.error("친구 목록 불러오기 실패:", error);
-  }
+  console.error("친구 목록 불러오기 실패:", error);
+  alert("친구 목록 불러오기 실패: " + error.message);
+}
 }
 
     async function deleteFriend(friendUid) {
