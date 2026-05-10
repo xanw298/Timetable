@@ -444,15 +444,15 @@ transform: translateZ(0);
 <input id="editTitle" type="text">
 
 <label>요일</label>
-<select id="editDay">
-  <option value="0">월요일</option>
-  <option value="1">화요일</option>
-  <option value="2">수요일</option>
-  <option value="3">목요일</option>
-  <option value="4">금요일</option>
-  <option value="5">토요일</option>
-  <option value="6">일요일</option>
-</select>
+<div id="editDayCheckboxes" style="display:flex; gap:6px; flex-wrap:wrap;">
+  <label><input type="checkbox" name="editDays" value="0">월</label>
+  <label><input type="checkbox" name="editDays" value="1">화</label>
+  <label><input type="checkbox" name="editDays" value="2">수</label>
+  <label><input type="checkbox" name="editDays" value="3">목</label>
+  <label><input type="checkbox" name="editDays" value="4">금</label>
+  <label><input type="checkbox" name="editDays" value="5">토</label>
+  <label><input type="checkbox" name="editDays" value="6">일</label>
+</div>
 
 <label>시작 시간</label>
 <input id="editStartTime" type="time">
@@ -546,7 +546,6 @@ let recentColors = JSON.parse(localStorage.getItem("recentColors")) || [];
     const closeModalBtn = document.getElementById("closeModalBtn");
     const saveEditBtn = document.getElementById("saveEditBtn");
 const editTitle = document.getElementById("editTitle");
-const editDay = document.getElementById("editDay");
 const editStartTime = document.getElementById("editStartTime");
 const editEndTime = document.getElementById("editEndTime");
 const editColor = document.getElementById("editColor");
@@ -947,7 +946,9 @@ renderEvents();
   selectedEventId = id;
 
   editTitle.value = event.title;
-  editDay.value = event.day;
+  document.querySelectorAll('input[name="editDays"]').forEach(input => {
+  input.checked = Number(input.value) === Number(event.day);
+});
   editStartTime.value = event.startTime;
   editEndTime.value = event.endTime;
   editColor.value = event.color;
@@ -976,7 +977,13 @@ modalBg.style.display = "flex";
   if (!selectedEventId) return;
 
   const title = editTitle.value.trim();
-  const day = Number(editDay.value);
+  const selectedEditDays = [...document.querySelectorAll('input[name="editDays"]:checked')]
+  .map(input => Number(input.value));
+
+if (selectedEditDays.length === 0) {
+  alert("요일을 하나 이상 선택해주세요.");
+  return;
+}
   const startTime = editStartTime.value;
   const endTime = editEndTime.value;
   const color = editColor.value;
@@ -992,24 +999,40 @@ modalBg.style.display = "flex";
     return;
   }
 
-  const updatedEvent = {
-    id: selectedEventId,
-    title,
-    day,
-    startTime,
-    endTime,
-    color,
-    memo
-  };
+ const originalEvent = events.find(event => event.id === selectedEventId);
+if (!originalEvent) return;
 
-  if (hasConflict(updatedEvent, selectedEventId)) {
-    alert("이미 같은 시간대에 일정이 있습니다.");
-    return;
-  }
+const updatedEvents = selectedEditDays.map(day => ({
+  id: day === Number(originalEvent.day) ? selectedEventId : `${Date.now()}_${day}`,
+  title,
+  day,
+  startTime,
+  endTime,
+  color,
+  memo
+}));
 
-  events = events.map(event =>
-    event.id === selectedEventId ? updatedEvent : event
-  );
+const eventsWithoutOriginal = events.filter(event => event.id !== selectedEventId);
+
+const hasAnyConflict = updatedEvents.some(newEvent => {
+  return eventsWithoutOriginal.some(event => {
+    if (Number(event.day) !== Number(newEvent.day)) return false;
+
+    const existingStart = timeToMinutes(event.startTime);
+    const existingEnd = timeToMinutes(event.endTime);
+    const newStart = timeToMinutes(newEvent.startTime);
+    const newEnd = timeToMinutes(newEvent.endTime);
+
+    return newStart < existingEnd && newEnd > existingStart;
+  });
+});
+
+if (hasAnyConflict) {
+  alert("선택한 요일 중 이미 같은 시간대에 일정이 있습니다.");
+  return;
+}
+
+events = [...eventsWithoutOriginal, ...updatedEvents];
 
   await saveEvents();
   renderEvents();
