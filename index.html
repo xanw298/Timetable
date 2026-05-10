@@ -483,6 +483,7 @@ transform: translateZ(0);
       signInWithPopup,
       signOut,
       onAuthStateChanged
+       deleteDoc
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
     import {
@@ -667,20 +668,47 @@ await setDoc(doc(db, "users", currentUser.uid, "friends", friendUid), {
       friendEl.style.border = "1px solid #333";
       friendEl.style.borderRadius = "8px";
       friendEl.style.marginBottom = "8px";
-      friendEl.style.cursor = "pointer";
+      friendEl.style.cursor = "default";
+friendEl.querySelector("span").style.cursor = "pointer";
       friendEl.style.background = "#1b1b1b";
 
-      friendEl.textContent = `${data.name || "이름 없음"} (${data.uid.slice(0, 8)}...)`;
-      
-      friendEl.addEventListener("click", () => {
-        openFriendSchedule(data.uid);
-      });
+      friendEl.innerHTML = `
+  <span>${data.name || "이름 없음"} (${data.uid.slice(0, 8)}...)</span>
+  <button type="button" style="width:auto; margin:0; padding:4px 8px;">삭제</button>
+`;
+
+friendEl.style.display = "flex";
+friendEl.style.justifyContent = "space-between";
+friendEl.style.alignItems = "center";
+      friendEl.querySelector("span").addEventListener("click", () => {
+  openFriendSchedule(data.uid);
+});
+
+friendEl.querySelector("button").addEventListener("click", event => {
+  event.stopPropagation();
+  deleteFriend(data.uid);
+});
 
       friendsList.appendChild(friendEl);
     });
 
   } catch (error) {
     console.error("친구 목록 불러오기 실패:", error);
+  }
+}
+
+    async function deleteFriend(friendUid) {
+  if (!currentUser) return;
+
+  if (!confirm("이 친구를 삭제할까요?")) return;
+
+  try {
+    await deleteDoc(doc(db, "users", currentUser.uid, "friends", friendUid));
+    await loadFriends();
+    alert("친구를 삭제했습니다.");
+  } catch (error) {
+    console.error("친구 삭제 실패:", error);
+    alert("친구 삭제 실패: " + error.message);
   }
 }
 
