@@ -715,19 +715,19 @@ await loadFriends();
   }
 }
 
-    async function openFriendSchedule(uid) {
+   async function openFriendSchedule(uid) {
   viewingFriendUid = uid;
 
   try {
     const snap = await getDoc(doc(db, "users", uid));
 
-   if (snap.exists()) {
-  events = snap.data().events || [];
-  renderEvents();
-}
+    if (snap.exists()) {
+      events = snap.data().events || [];
+      renderEvents();
     } else {
       alert("친구 시간표가 없습니다.");
     }
+
   } catch (error) {
     console.error("친구 시간표 불러오기 실패:", error);
     alert("친구 시간표 불러오기 실패: " + error.message);
