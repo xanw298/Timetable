@@ -428,7 +428,6 @@ transform: translateZ(0);
         <textarea id="memo"></textarea>
 
         <button class="add-btn" type="submit">일정 추가</button>
-        <button class="reset-btn" type="button" id="clearAllBtn">전체 삭제</button>
       </form>
     </aside>
 
@@ -529,7 +528,6 @@ const addFriendBtn = document.getElementById("addFriendBtn");
     const friendsList = document.getElementById("friendsList");
 
     const eventForm = document.getElementById("eventForm");
-    const clearAllBtn = document.getElementById("clearAllBtn");
 
     const colorInput = document.getElementById("color");
     const colorPalette = document.getElementById("colorPalette");
@@ -1000,13 +998,6 @@ renderEvents();
 
     modalBg.addEventListener("click", event => {
       if (event.target === modalBg) closeModal();
-    });
-
-    clearAllBtn.addEventListener("click", async () => {
-      if (!confirm("모든 일정을 삭제할까요?")) return;
-      events = [];
-      await saveEvents();
-      renderEvents();
     });
 
     googleLoginBtn.addEventListener("click", async () => {
