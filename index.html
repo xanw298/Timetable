@@ -994,6 +994,14 @@ renderEvents();
 
 renderEditRecentColors();
 
+      if (viewingFriendUid) {
+  document.getElementById("saveEditBtn").style.display = "none";
+  document.getElementById("deleteEventBtn").style.display = "none";
+} else {
+  document.getElementById("saveEditBtn").style.display = "block";
+  document.getElementById("deleteEventBtn").style.display = "block";
+}
+
 modalBg.style.display = "flex";
 }
 
