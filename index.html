@@ -590,6 +590,38 @@ const editMemo = document.getElementById("editMemo");
   }
 }
 
+    async function addFriend() {
+  if (!currentUser) {
+    alert("로그인 후 사용할 수 있습니다.");
+    return;
+  }
+
+  const friendUid = friendUidInput.value.trim();
+
+  if (!friendUid) {
+    alert("친구 코드를 입력해주세요.");
+    return;
+  }
+
+  if (friendUid === currentUser.uid) {
+    alert("자기 자신은 친구로 추가할 수 없습니다.");
+    return;
+  }
+
+  try {
+    await setDoc(doc(db, "users", currentUser.uid, "friends", friendUid), {
+      uid: friendUid,
+      addedAt: new Date().toISOString()
+    });
+
+    alert("친구가 추가되었습니다.");
+    friendUidInput.value = "";
+  } catch (error) {
+    console.error("친구 추가 실패:", error);
+    alert("친구 추가 실패: " + error.message);
+  }
+}
+
     function buildScheduleGrid() {
       schedule.innerHTML = "";
 
@@ -839,6 +871,8 @@ renderEvents();
 }
 
     eventForm.addEventListener("submit", addEvent);
+
+    addFriendBtn.addEventListener("click", addFriend);
 
     saveEditBtn.addEventListener("click", saveEditedEvent);
     deleteEventBtn.addEventListener("click", deleteSelectedEvent);
