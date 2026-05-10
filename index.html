@@ -377,6 +377,14 @@ transform: translateZ(0);
   <button class="add-btn" id="addFriendBtn" type="button">
     친구 추가
   </button>
+
+      <div style="margin-top:14px;">
+  <div style="font-size:14px; font-weight:bold; margin-bottom:8px;">
+    친구 목록
+  </div>
+
+  <div id="friendsList"></div>
+</div>
 </div>
   </section>
 
@@ -474,11 +482,13 @@ transform: translateZ(0);
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
     import {
-      getFirestore,
-      doc,
-      setDoc,
-      getDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCC8AhKrsSQB7nA9NexD0aUYvrSusODUPA",
@@ -509,6 +519,7 @@ transform: translateZ(0);
     const myUid = document.getElementById("myUid");
 const friendUidInput = document.getElementById("friendUidInput");
 const addFriendBtn = document.getElementById("addFriendBtn");
+    const friendsList = document.getElementById("friendsList");
 
     const eventForm = document.getElementById("eventForm");
     const clearAllBtn = document.getElementById("clearAllBtn");
@@ -620,6 +631,46 @@ const editMemo = document.getElementById("editMemo");
     console.error("친구 추가 실패:", error);
     alert("친구 추가 실패: " + error.message);
   }
+}
+
+    async function loadFriends() {
+  if (!currentUser) return;
+
+  friendsList.innerHTML = "";
+
+  try {
+    const snap = await getDocs(
+      collection(db, "users", currentUser.uid, "friends")
+    );
+
+    snap.forEach(friendDoc => {
+      const data = friendDoc.data();
+
+      const friendEl = document.createElement("div");
+
+      friendEl.style.padding = "10px";
+      friendEl.style.border = "1px solid #333";
+      friendEl.style.borderRadius = "8px";
+      friendEl.style.marginBottom = "8px";
+      friendEl.style.cursor = "pointer";
+      friendEl.style.background = "#1b1b1b";
+
+      friendEl.textContent = data.uid;
+
+      friendEl.addEventListener("click", () => {
+        openFriendSchedule(data.uid);
+      });
+
+      friendsList.appendChild(friendEl);
+    });
+
+  } catch (error) {
+    console.error("친구 목록 불러오기 실패:", error);
+  }
+}
+
+    function openFriendSchedule(uid) {
+  alert(`친구 시간표 보기 기능 준비중\nUID: ${uid}`);
 }
 
     function buildScheduleGrid() {
@@ -913,8 +964,9 @@ renderEvents();
         mainApp.style.display = "flex";
 
         buildScheduleGrid();
-        await loadEvents();
-        renderEvents();
+await loadEvents();
+await loadFriends();
+renderEvents();
       } else {
         googleLoginBtn.style.display = "inline-block";
         logoutBtn.style.display = "none";
