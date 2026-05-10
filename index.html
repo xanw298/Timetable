@@ -616,9 +616,10 @@ const editMemo = document.getElementById("editMemo");
 
   try {
     await setDoc(doc(db, "users", currentUser.uid), {
-      events: events,
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
+  events: events,
+  recentColors: recentColors,
+  updatedAt: new Date().toISOString()
+}, { merge: true });
 
     console.log("Firestore 저장 성공");
   } catch (error) {
@@ -634,12 +635,17 @@ const editMemo = document.getElementById("editMemo");
     const snap = await getDoc(doc(db, "users", currentUser.uid));
 
     if (snap.exists()) {
-      events = snap.data().events || [];
-      console.log("Firestore 불러오기 성공", events);
-    } else {
-      events = [];
-      console.log("저장된 시간표 없음");
-    }
+  events = snap.data().events || [];
+  recentColors = snap.data().recentColors || [];
+  console.log("Firestore 불러오기 성공", events);
+} else {
+  events = [];
+  recentColors = [];
+  console.log("저장된 시간표 없음");
+}
+
+renderRecentColors();
+renderEditRecentColors();
   } catch (error) {
     console.error("Firestore 불러오기 실패:", error);
     alert("시간표 불러오기 실패: " + error.message);
@@ -962,8 +968,8 @@ if (!recentColors.includes(color)) {
 }
 
 recentColors = recentColors.slice(0, 10);
-localStorage.setItem("recentColors", JSON.stringify(recentColors));
 renderRecentColors();
+renderEditRecentColors();
 
 await saveEvents();
 renderEvents();
