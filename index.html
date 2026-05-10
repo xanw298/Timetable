@@ -626,11 +626,20 @@ const editMemo = document.getElementById("editMemo");
   }
 
   try {
-    await setDoc(doc(db, "users", currentUser.uid, "friends", friendUid), {
-      uid: friendUid,
-      addedAt: new Date().toISOString()
-    });
+    const friendSnap = await getDoc(doc(db, "users", friendUid));
 
+let friendName = "사용자";
+
+if (friendSnap.exists()) {
+  friendName = friendSnap.data().displayName || "사용자";
+}
+
+await setDoc(doc(db, "users", currentUser.uid, "friends", friendUid), {
+  uid: friendUid,
+  name: friendName,
+  addedAt: new Date().toISOString()
+});
+    
     alert("친구가 추가되었습니다.");
     friendUidInput.value = "";
   } catch (error) {
@@ -661,7 +670,7 @@ const editMemo = document.getElementById("editMemo");
       friendEl.style.cursor = "pointer";
       friendEl.style.background = "#1b1b1b";
 
-      friendEl.textContent = data.uid;
+      friendEl.textContent = `${data.name} (${data.uid.slice(0, 8)}...)`;
 
       friendEl.addEventListener("click", () => {
         openFriendSchedule(data.uid);
@@ -987,6 +996,9 @@ renderEvents();
         googleLoginBtn.style.display = "none";
         logoutBtn.style.display = "inline-block";
         userInfo.textContent = `${user.displayName || "사용자"}님 로그인 중`;
+        await setDoc(doc(db, "users", user.uid), {
+  displayName: user.displayName || "사용자"
+}, { merge: true });
         myUid.textContent = user.uid;
         mainApp.style.display = "flex";
 
