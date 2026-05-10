@@ -400,16 +400,16 @@ transform: translateZ(0);
         <label for="title">일정 이름</label>
         <input id="title" type="text" required />
 
-        <label for="day">요일</label>
-        <select id="day">
-          <option value="0">월요일</option>
-          <option value="1">화요일</option>
-          <option value="2">수요일</option>
-          <option value="3">목요일</option>
-          <option value="4">금요일</option>
-          <option value="5">토요일</option>
-          <option value="6">일요일</option>
-        </select>
+        <label>요일</label>
+<div id="dayCheckboxes" style="display:flex; gap:6px; flex-wrap:wrap;">
+  <label><input type="checkbox" name="days" value="0">월</label>
+  <label><input type="checkbox" name="days" value="1">화</label>
+  <label><input type="checkbox" name="days" value="2">수</label>
+  <label><input type="checkbox" name="days" value="3">목</label>
+  <label><input type="checkbox" name="days" value="4">금</label>
+  <label><input type="checkbox" name="days" value="5">토</label>
+  <label><input type="checkbox" name="days" value="6">일</label>
+</div>
 
         <label for="startTime">시작 시간</label>
         <input id="startTime" type="time" required />
@@ -877,7 +877,13 @@ await loadFriends();
       event.preventDefault();
 
       const title = document.getElementById("title").value.trim();
-      const day = Number(document.getElementById("day").value);
+      const selectedDays = [...document.querySelectorAll('input[name="days"]:checked')]
+  .map(input => Number(input.value));
+
+if (selectedDays.length === 0) {
+  alert("요일을 하나 이상 선택해주세요.");
+  return;
+}
       const startTime = document.getElementById("startTime").value;
       const endTime = document.getElementById("endTime").value;
       const color = document.getElementById("color").value;
@@ -893,22 +899,24 @@ await loadFriends();
         return;
       }
 
-      const newEvent = {
-        id: Date.now().toString(),
-        title,
-        day,
-        startTime,
-        endTime,
-        color,
-        memo
-      };
+      const newEvents = selectedDays.map(day => ({
+  id: `${Date.now()}_${day}`,
+  title,
+  day,
+  startTime,
+  endTime,
+  color,
+  memo
+}));
 
-      if (hasConflict(newEvent)) {
-        alert("이미 같은 시간대에 일정이 있습니다.");
-        return;
-      }
+const conflictEvent = newEvents.find(newEvent => hasConflict(newEvent));
 
-     events.push(newEvent);
+if (conflictEvent) {
+  alert("선택한 요일 중 이미 같은 시간대에 일정이 있습니다.");
+  return;
+}
+
+events.push(...newEvents);
 
 if (!recentColors.includes(color)) {
   recentColors.unshift(color);
@@ -924,6 +932,11 @@ await saveEvents();
 renderEvents();
       
       eventForm.reset();
+
+      document.querySelectorAll('input[name="days"]').forEach(input => {
+  input.checked = false;
+});
+      
       colorInput.value = "#3b82f6";
     }
 
