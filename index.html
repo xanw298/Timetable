@@ -381,6 +381,10 @@ transform: translateZ(0);
       <div style="margin-top:14px;">
   <div style="font-size:14px; font-weight:bold; margin-bottom:8px;">
     친구 목록
+
+    <button class="reset-btn" id="myScheduleBtn" type="button">
+  내 시간표 보기
+</button>
   </div>
 
   <div id="friendsList"></div>
@@ -508,6 +512,7 @@ transform: translateZ(0);
     let currentUser = null;
     let events = [];
     let selectedEventId = null;
+    let viewingFriendUid = null;
 
     const days = ["월", "화", "수", "목", "금", "토", "일"];
 
@@ -518,6 +523,7 @@ transform: translateZ(0);
     const mainApp = document.getElementById("mainApp");
     const myUid = document.getElementById("myUid");
 const friendUidInput = document.getElementById("friendUidInput");
+    const myScheduleBtn = document.getElementById("myScheduleBtn");
 const addFriendBtn = document.getElementById("addFriendBtn");
     const friendsList = document.getElementById("friendsList");
 
@@ -669,8 +675,23 @@ const editMemo = document.getElementById("editMemo");
   }
 }
 
-    function openFriendSchedule(uid) {
-  alert(`친구 시간표 보기 기능 준비중\nUID: ${uid}`);
+    async function openFriendSchedule(uid) {
+  viewingFriendUid = uid;
+
+  try {
+    const snap = await getDoc(doc(db, "users", uid));
+
+    if (snap.exists()) {
+      events = snap.data().events || [];
+      renderEvents();
+      alert("친구 시간표를 불러왔습니다.");
+    } else {
+      alert("친구 시간표가 없습니다.");
+    }
+  } catch (error) {
+    console.error("친구 시간표 불러오기 실패:", error);
+    alert("친구 시간표 불러오기 실패: " + error.message);
+  }
 }
 
     function buildScheduleGrid() {
@@ -924,6 +945,12 @@ renderEvents();
     eventForm.addEventListener("submit", addEvent);
 
     addFriendBtn.addEventListener("click", addFriend);
+
+    myScheduleBtn.addEventListener("click", async () => {
+  viewingFriendUid = null;
+  await loadEvents();
+  renderEvents();
+});
 
     saveEditBtn.addEventListener("click", saveEditedEvent);
     deleteEventBtn.addEventListener("click", deleteSelectedEvent);
