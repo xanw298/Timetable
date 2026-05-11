@@ -531,7 +531,8 @@ margin: 20px 0;
   getDoc,
   collection,
   getDocs,
-  deleteDoc
+  deleteDoc,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -553,6 +554,7 @@ margin: 20px 0;
     let events = [];
     let selectedEventId = null;
     let viewingFriendUid = null;
+    let unsubscribeFriendSchedule = null;
 
     const days = ["월", "화", "수", "목", "금", "토", "일"];
 
@@ -761,23 +763,27 @@ await loadFriends();
   }
 }
 
-   async function openFriendSchedule(uid) {
+   function openFriendSchedule(uid) {
   viewingFriendUid = uid;
 
-  try {
-    const snap = await getDoc(doc(db, "users", uid));
+  if (unsubscribeFriendSchedule) {
+    unsubscribeFriendSchedule();
+    unsubscribeFriendSchedule = null;
+  }
 
-    if (snap.exists()) {
-      events = snap.data().events || [];
+  unsubscribeFriendSchedule = onSnapshot(doc(db, "users", uid), snapshot => {
+    if (snapshot.exists()) {
+      events = snapshot.data().events || [];
       renderEvents();
     } else {
+      events = [];
+      renderEvents();
       alert("친구 시간표가 없습니다.");
     }
-
-  } catch (error) {
-    console.error("친구 시간표 불러오기 실패:", error);
+  }, error => {
+    console.error("친구 시간표 실시간 동기화 실패:", error);
     alert("친구 시간표 불러오기 실패: " + error.message);
-  }
+  });
 }
 
     function buildScheduleGrid() {
@@ -1113,7 +1119,12 @@ closeModal();
 
     addFriendBtn.addEventListener("click", addFriend);
 
-    myScheduleBtn.addEventListener("click", async () => {
+   myScheduleBtn.addEventListener("click", async () => {
+  if (unsubscribeFriendSchedule) {
+    unsubscribeFriendSchedule();
+    unsubscribeFriendSchedule = null;
+  }
+
   viewingFriendUid = null;
   await loadEvents();
   renderEvents();
